@@ -4,7 +4,6 @@ import it.hurts.shatterbyte.immersiveui.util.CommonCode;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiGraphics;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -21,8 +20,8 @@ public class GooeyMixin {
     @Unique
     Random random = new Random();
 
-    @Inject(method = "render", at = @At("TAIL"))
-    public void renderCode(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
+    @Inject(method = "extractRenderState", at = @At("TAIL"))
+    public void renderCode(DeltaTracker deltaTracker, boolean advanceGameTime, boolean isInGame, CallbackInfo ci) {
         CommonCode.gooeyRenderCode(deltaTracker.getGameTimeDeltaPartialTick(true));
     }
 }

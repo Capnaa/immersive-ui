@@ -1,19 +1,37 @@
-architectury {
-    common rootProject.enabled_platforms.split(',')
+plugins {
+    id 'net.neoforged.moddev'
 }
 
-loom {
-    //accessWidenerPath = file("src/main/resources/" + project.mod_id + ".accesswidener")
-}
-
-repositories {
-
+// "Vanilla only" setup: gives the common module the Minecraft classes to compile against.
+// The loader modules compile this module's sources themselves (see fabric/build.gradle).
+neoForge {
+    neoFormVersion = neo_form_version
 }
 
 dependencies {
-    modImplementation "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
+    compileOnly 'org.spongepowered:mixin:0.8.5'
+    compileOnly 'io.github.llamalad7:mixinextras-common:0.5.3'
+    annotationProcessor 'io.github.llamalad7:mixinextras-common:0.5.3'
 
-    modImplementation "dev.architectury:architectury:$rootProject.architectury_api_version"
+    compileOnly("maven.modrinth:RH2KUdKJ:$rootProject.shatterlib_version") {
+        transitive = false
+    }
+    // ShatterLib's config classes expose JSON5 types in their signatures
+    compileOnly 'de.marhali:json5-java:3.0.0'
+}
 
-    modImplementation "it.hurts.shatterbyte.shatterlib:shatterlib-common:$rootProject.shatterlib_version"
+configurations {
+    commonJava {
+        canBeResolved = false
+        canBeConsumed = true
+    }
+    commonResources {
+        canBeResolved = false
+        canBeConsumed = true
+    }
+}
+
+artifacts {
+    commonJava sourceSets.main.java.sourceDirectories.singleFile
+    commonResources sourceSets.main.resources.sourceDirectories.singleFile
 }

@@ -18,9 +18,10 @@ import java.util.Random;
 
 @Mixin(Enchantment.class)
 public class EnchantmentMixin {
-    @Inject(method = "getFullname", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/chat/ComponentUtils;mergeStyles(Lnet/minecraft/network/chat/MutableComponent;Lnet/minecraft/network/chat/Style;)Lnet/minecraft/network/chat/MutableComponent;", ordinal = 0, shift = At.Shift.AFTER))
+    @Inject(method = "getFullname", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/network/chat/ComponentUtils;mergeStyles(Lnet/minecraft/network/chat/MutableComponent;Lnet/minecraft/network/chat/Style;)Lnet/minecraft/network/chat/MutableComponent;", ordinal = 0))
     private static void obfuscateCursedEnchantments(Holder<Enchantment> holder, int i, CallbackInfoReturnable<Component> cir, @Local LocalRef<MutableComponent> mutableComponentLocalRef) {
         if (!ImmersiveUI.CONFIG.isEnableCurseFormatting()) return;
+        if (Minecraft.getInstance().player == null) return;
         int ticks = Minecraft.getInstance().player.tickCount * 10000 + holder.hashCode();
         if (new Random(ticks).nextBoolean()) mutableComponentLocalRef.set(RenderUtils.obfuscate(mutableComponentLocalRef.get(), 0.15d, ticks));
         //mutableComponentLocalRef.set(Component.literal(new Random(ticks).nextBoolean() + " | " + (ticks)));

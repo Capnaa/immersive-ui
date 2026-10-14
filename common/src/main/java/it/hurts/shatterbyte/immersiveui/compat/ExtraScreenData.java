@@ -6,10 +6,12 @@ import net.minecraft.world.inventory.Slot;
 
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicReference;
 
 public interface ExtraScreenData {
     MouseInfo getMouseInfo();
     RenderInfo getRenderInfo();
     Random getRandom();
     Map<Slot, Float> getExpandingProgress();
+    AtomicReference<Float> getShakeTimer();
 }

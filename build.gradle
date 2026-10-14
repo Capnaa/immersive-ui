@@ -1,102 +1,62 @@
 plugins {
-    id 'dev.architectury.loom' version '1.13-SNAPSHOT' apply false
-    id 'architectury-plugin' version '3.4-SNAPSHOT'
-    id 'com.gradleup.shadow' version '8.3.6' apply false
-    id("io.freefair.lombok") version "8.14.2" apply false
-}
-
-architectury {
-    minecraft = project.minecraft_version
+    id 'net.fabricmc.fabric-loom' version '1.17-SNAPSHOT' apply false
+    id 'net.neoforged.moddev' version '2.0.147' apply false
 }
 
 allprojects {
     group = rootProject.mod_group
     version = rootProject.mod_version + "+" + rootProject.minecraft_version
-
-    repositories {
-        maven {
-            name = 'ParchmentMC'
-            url = 'https://maven.parchmentmc.org'
-        }
-    }
 }
 
 subprojects {
-    apply plugin: 'dev.architectury.loom'
-    apply plugin: 'architectury-plugin'
+    apply plugin: 'java-library'
     apply plugin: 'maven-publish'
-    apply plugin: 'io.freefair.lombok'
 
     base {
         archivesName = "$rootProject.mod_name" + "-" + "$project.name".toUpperCase()
     }
 
     repositories {
-        mavenLocal()
-        flatDir {
-            dirs 'libs'
+        mavenCentral()
+        exclusiveContent {
+            forRepository {
+                maven {
+                    name = 'Sponge'
+                    url = 'https://repo.spongepowered.org/repository/maven-public'
+                }
+            }
+            filter {
+                includeGroupAndSubgroups('org.spongepowered')
+            }
         }
-        maven {
-            name = "OctoStudios"
-            url = uri("https://maven.octo-studios.com/releases")
+        exclusiveContent {
+            forRepository {
+                maven {
+                    name = 'Modrinth'
+                    url = 'https://api.modrinth.com/maven'
+                }
+            }
+            filter {
+                includeGroup 'maven.modrinth'
+            }
         }
     }
 
     dependencies {
-        minecraft "net.minecraft:minecraft:$rootProject.minecraft_version"
-
-        loom {
-            silentMojangMappingsLicense()
-        }
-
-        mappings loom.layered() {
-            officialMojangMappings()
-            parchment("org.parchmentmc.data:parchment-1.21.11:2025.12.20@zip")
-        }
+        compileOnly 'org.projectlombok:lombok:1.18.40'
+        annotationProcessor 'org.projectlombok:lombok:1.18.40'
 
         implementation 'org.jetbrains:annotations:20.1.0'
-
-        if (file("libs").isDirectory()) {
-            file("libs").eachFile { file ->
-                def splitPos = file.name.lastIndexOf("-")
-
-                if (file.name != "desktop.ini") {
-                    println file.name
-
-                    def modartifact = file.name.substring(0, splitPos)
-                    def modversion = file.name.substring(splitPos + 1, file.name.length() - 4)
-                    def modreference = "lib:$modartifact:$modversion"
-
-                    if ("$project.name".equalsIgnoreCase("neoforge")) {
-                        dependencies {
-                            implementation (project.dependencies.create(modreference) {
-                                transitive = false
-                            })
-                        }
-                    } else if ("$project.name".equalsIgnoreCase("fabric")) {
-                        dependencies {
-                            modImplementation project.dependencies.create(modreference);
-                        }
-                    } else {
-                        dependencies {
-                            modImplementation project.dependencies.create(modreference);
-                        }
-                    }
-
-                }
-            }
-        } else file("libs").mkdir()
     }
 
     java {
         withSourcesJar()
 
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
+        toolchain.languageVersion = JavaLanguageVersion.of(rootProject.java_version)
     }
 
     tasks.withType(JavaCompile).configureEach {
-        it.options.release = 21
+        it.options.release = Integer.parseInt(rootProject.java_version)
     }
 
     publishing {

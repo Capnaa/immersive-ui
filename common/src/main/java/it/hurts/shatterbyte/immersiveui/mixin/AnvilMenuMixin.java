@@ -2,6 +2,7 @@ package it.hurts.shatterbyte.immersiveui.mixin;
 
 import it.hurts.shatterbyte.immersiveui.client.VariableStorage;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AnvilMenu;
 import net.minecraft.world.item.ItemStack;
@@ -14,10 +15,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class AnvilMenuMixin {
     @Inject(method = "onTake", at = @At("HEAD"))
     public void onTake(Player player, ItemStack stack, CallbackInfo ci) {
-        if (player != Minecraft.getInstance().player || Minecraft.getInstance().screen == null) {
+        Screen screen = Minecraft.getInstance().gui.screen();
+        if (player != Minecraft.getInstance().player || screen == null) {
             return;
         }
 
-        VariableStorage.shakeScreen.add(Minecraft.getInstance().screen);
+        VariableStorage.shakeScreen.add(screen);
     }
 }
